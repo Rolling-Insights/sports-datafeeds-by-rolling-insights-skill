@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BASE_URL="${ROLLING_INSIGHTS_BASE_URL:-http://rest.datafeeds.rolling-insights.com/api/v1}"
-TOKEN="${ROLLING_INSIGHTS_TOKEN:-${RSC_TOKEN:-}}"
+BASE_URL="${ROLLING_INSIGHTS_BASE_URL:-https://rest.datafeeds.rolling-insights.com/api/v1}"
+TOKEN="${RSC_TOKEN:-}"
 
 if [[ -z "${TOKEN}" ]]; then
-  echo "Missing token: set ROLLING_INSIGHTS_TOKEN or RSC_TOKEN" >&2
+  echo "Missing token: set RSC_TOKEN" >&2
   exit 1
 fi
 

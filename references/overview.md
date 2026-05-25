@@ -4,7 +4,7 @@ DataFeeds by Rolling Insights provides sports REST feeds for schedules, live upd
 
 ## Base URL
 
-`http://rest.datafeeds.rolling-insights.com/api/v1`
+`https://rest.datafeeds.rolling-insights.com/api/v1`
 
 ## Main REST patterns
 

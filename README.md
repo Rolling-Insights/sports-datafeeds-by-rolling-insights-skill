@@ -30,11 +30,9 @@ Payload shapes and endpoint availability vary by sport. Check `references/sport-
 
 DataFeeds REST requests require a query-string token named `RSC_token`.
 
-Set the token in one of the supported environment variables:
+Set the token in the supported environment variable:
 
 ```bash
-export ROLLING_INSIGHTS_TOKEN='your-token'
-# or
 export RSC_TOKEN='your-token'
 ```
 
@@ -45,6 +43,17 @@ export ROLLING_INSIGHTS_BASE_URL='https://rest.datafeeds.rolling-insights.com/ap
 ```
 
 Never hardcode real tokens in scripts, examples, prompts, or committed files.
+
+### Security note
+
+`RSC_token` travels in the URL query string, so it can easily leak through logs, browser history, proxies, referrer headers, screenshots, and copy/paste. Treat it as a long-lived secret:
+
+- **HTTPS only.** Always call `https://rest.datafeeds.rolling-insights.com/api/v1`; never downgrade to `http://`.
+- **Keep `RSC_TOKEN` in env vars or a secret store.** Do not commit it, paste it into prompts, or write it into chat transcripts.
+- **Do not share raw request URLs.** Avoid pasting full `RSC_token=...` URLs into chats, tickets, logs, screenshots, or browser history. The bundled scripts redact the token from their stderr URL echo.
+- **Rotate on suspected exposure.** If the token may have appeared in any of the channels above, rotate it via the API Locker before continuing.
+
+See [`references/auth.md`](references/auth.md) for the full credential-handling guidance.
 
 ## Common REST Patterns
 
@@ -67,7 +76,7 @@ Use REST first for schedules, live feeds, play-by-play, fields, team/player refe
 
 ## Helper Scripts
 
-The scripts read tokens from `ROLLING_INSIGHTS_TOKEN` or `RSC_TOKEN`, print a redacted URL to stderr, and emit raw JSON to stdout.
+The scripts read the token from `RSC_TOKEN`, print a redacted URL to stderr, and emit raw JSON to stdout.
 
 ```bash
 # Schedule

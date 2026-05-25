@@ -1,6 +1,6 @@
 # End-to-End Examples
 
-Each example shows a realistic user prompt, the request sequence the agent should run, an abridged response, and the answer to return. Token is shown as `$RSC` and elided from URLs; in practice it is set via `ROLLING_INSIGHTS_TOKEN` or `RSC_TOKEN`.
+Each example shows a realistic user prompt, the request sequence the agent should run, an abridged response, and the answer to return. Token is shown as `$RSC` and elided from URLs; in practice it is set via `RSC_TOKEN`.
 
 All `live` URLs include `&_={ms_timestamp}` and the headers `Cache-Control: no-cache, no-store` and `Pragma: no-cache`. Omitted below for brevity; the bundled scripts add them automatically.
 
@@ -173,8 +173,8 @@ Hand the developer this skeleton — it mirrors the bundled bash scripts but in 
 ```python
 import os, time, requests
 
-BASE = "http://rest.datafeeds.rolling-insights.com/api/v1"
-TOKEN = os.environ.get("ROLLING_INSIGHTS_TOKEN") or os.environ["RSC_TOKEN"]
+BASE = "https://rest.datafeeds.rolling-insights.com/api/v1"
+TOKEN = os.environ["RSC_TOKEN"]
 
 def live_nba(date: str) -> dict:
     url = f"{BASE}/live/{date}/NBA"
