@@ -37,6 +37,8 @@ https://rest.datafeeds.rolling-insights.com/api/v1/schedule/2026-04-10/NBA?RSC_t
 
 ## Recommended environment variables
 
+`RSC_TOKEN` is the only supported environment variable for the API token. The query parameter name is always `RSC_token`.
+
 ```bash
 export RSC_TOKEN='...'
 export ROLLING_INSIGHTS_BASE_URL='https://rest.datafeeds.rolling-insights.com/api/v1'
