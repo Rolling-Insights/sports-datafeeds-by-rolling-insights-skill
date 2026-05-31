@@ -2,7 +2,7 @@
 
 ## Base URL
 
-`http://rest.datafeeds.rolling-insights.com/api/v1`
+`https://rest.datafeeds.rolling-insights.com/api/v1`
 
 ## Endpoint patterns
 
