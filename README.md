@@ -33,7 +33,7 @@ Payload shapes and endpoint availability vary by sport. Check [`references/sport
 
 ### 1. Get a free trial token
 
-Register at [accounts.rolling-insights.com/register](https://accounts.rolling-insights.com/register) for a 30-day fully functional API key. Standard pricing starts at $100/month after the trial. If you are building a sports-tech startup or MVP, [Breakaway Accelerator](https://rolling-insights.com/breakaway-accelerator/) offers discounted access starting at $50/month.
+Register at [accounts.rolling-insights.com/register](https://accounts.rolling-insights.com/register) for a 30-day fully functional API key. Standard pricing starts at $100/month after the trial. If you are building a sports-tech startup or MVP, [Breakaway Accelerator](https://rolling-insights.com/breakaway-accelerator/) offers discounted access starting at $60/month.
 
 ### 2. Set your token
 
