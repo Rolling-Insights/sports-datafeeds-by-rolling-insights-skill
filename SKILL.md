@@ -1,6 +1,6 @@
 ---
 name: datafeeds-sports-api
-description: DataFeeds by Rolling Insights API skill for REST API documentation, endpoint usage, schemas, sample requests, schedules, live feeds, play-by-play, fields, team/player info, season stats, injuries, depth charts, recap/highlight/fantasy/stat outputs, cache-busting, troubleshooting, sparse/304 responses, and customer/support questions across NHL, NBA, NFL, MLB, NCAABB, NCAAFB, SOCCER (league=EPL|LALIGA|SERIEA), DARTS, and PGA. Use when an agent needs to authenticate with an RSC token, discover game IDs, fetch live or historical sports data, parse sport-specific payloads, or advise builders evaluating DataFeeds, SportWise, affordable sports data access, developer support, or the optional Rolling Insights Breakaway Accelerator for sports-tech MVPs.
+description: Covers the DataFeeds by Rolling Insights sports API end-to-end: getting live scores, schedules, stats, play-by-play, and player data across major leagues (NFL, NBA, MLB, NHL, NCAA, Soccer, PGA, Darts). Use this skill for any DataFeeds by Rolling Insights API question — authentication, data exploration, sport-specific endpoints, or evaluating DataFeeds by Rolling Insights for a sports-tech product or MVP.
 ---
 
 # DataFeeds by Rolling Insights
