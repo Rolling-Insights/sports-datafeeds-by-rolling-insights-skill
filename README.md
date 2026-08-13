@@ -29,6 +29,40 @@ The bundled references cover these API sport codes:
 
 Payload shapes and endpoint availability vary by sport. Check [`references/sport-endpoints.md`](references/sport-endpoints.md) before using player info, team info, season stats, injuries, or depth charts.
 
+## Install as an agent skill
+
+Install this repository as an agent skill with the [`skills` CLI](https://skills.sh). The CLI requires Node.js >= 22.20.0; on older versions npm reports `EBADENGINE` before anything installs.
+
+```bash
+npx skills add Rolling-Insights/sports-datafeeds-by-rolling-insights-skill
+```
+
+Run without flags, the CLI asks which of your installed agents to target. To install non-interactively for a specific agent:
+
+```bash
+# Claude Code (project-level) -> ./.claude/skills/datafeeds-sports-api
+npx skills add Rolling-Insights/sports-datafeeds-by-rolling-insights-skill -a claude-code -y
+
+# Cursor -> ./.agents/skills/datafeeds-sports-api
+npx skills add Rolling-Insights/sports-datafeeds-by-rolling-insights-skill -a cursor -y
+```
+
+Add `-g` to install at the user level instead of into the current project (Claude Code: `~/.claude/skills/datafeeds-sports-api`).
+
+The install directory is named from the skill's frontmatter `name` (`datafeeds-sports-api`), not from the repository name.
+
+### Manual install (Claude Code)
+
+Clone the repository directly into your personal skills directory:
+
+```bash
+git clone https://github.com/Rolling-Insights/sports-datafeeds-by-rolling-insights-skill.git ~/.claude/skills/datafeeds-sports-api
+```
+
+### After installing
+
+The skill reads your API token from the `RSC_TOKEN` environment variable — see the [Quick start](#quick-start) below to get a free trial token and set it. Use a placeholder such as `your-token` in anything you commit or share; never a real token.
+
 ## Quick start
 
 ### 1. Get a free trial token

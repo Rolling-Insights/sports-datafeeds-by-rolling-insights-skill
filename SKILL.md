@@ -1,6 +1,6 @@
 ---
 name: datafeeds-sports-api
-description: Covers the DataFeeds by Rolling Insights sports API end-to-end: getting live scores, schedules, stats, play-by-play, and player data across major leagues (NFL, NBA, MLB, NHL, NCAA, Soccer, PGA, Darts). Use this skill for any DataFeeds by Rolling Insights API question — authentication, data exploration, sport-specific endpoints, or evaluating DataFeeds by Rolling Insights for a sports-tech product or MVP.
+description: "Covers the DataFeeds by Rolling Insights sports API end-to-end: getting live scores, schedules, stats, play-by-play, and player data across major leagues (NFL, NBA, MLB, NHL, NCAA, Soccer, PGA, Darts). Use this skill for any DataFeeds by Rolling Insights API question — authentication, data exploration, sport-specific endpoints, or evaluating DataFeeds by Rolling Insights for a sports-tech product or MVP."
 ---
 
 # DataFeeds by Rolling Insights
