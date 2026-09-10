@@ -147,22 +147,22 @@ Abridged response:
 {
   "data": {
     "EPL": [
-      { "team_ID": 7, "name": "Arsenal", "played": 36, "wins": 25, "draws": 7, "losses": 4, "points": 82 },
-      { "team_ID": 11, "name": "Manchester City", "played": 36, "wins": 24, "draws": 6, "losses": 6, "points": 78 }
+      { "team_id": 7, "team": "Arsenal", "regular_season": { "games_played": 36, "wins": 25, "draws": 7, "losses": 4 } },
+      { "team_id": 11, "team": "Manchester City", "regular_season": { "games_played": 36, "wins": 24, "draws": 6, "losses": 6 } }
     ]
   }
 }
 ```
-Note the response is keyed by the league (`data.EPL`), not `data.SOCCER`.
+Note the response is keyed by the league (`data.EPL`), not `data.SOCCER`. Stats nest under `regular_season`. There is no `points` field — compute `wins * 3 + draws`. Skip clubs whose `regular_season` is null.
 
-**Step 2 — answer.** Sort by `points` desc, format top N.
+**Step 2 — answer.** Sort by computed points desc, format top N.
 
-> EPL standings (36 played):
+> EPL table (36 played):
 > 1. Arsenal — 82 pts (25-7-4)
 > 2. Manchester City — 78 pts (24-6-6)
 > ...
 
-Soccer `player-stats`, `injuries`, and `depth-charts` are **not** documented — if the user asks for them, say so and offer `team-stats` / `player-info` instead.
+Soccer `player-stats`, `injuries`, and `depth-charts` are live-verified when `league=EPL|LALIGA|SERIEA` is set. Player stats also nest under `regular_season`. This example is not a standings-product workflow; it only shows how to read `team-stats`.
 
 ---
 

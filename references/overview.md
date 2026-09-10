@@ -52,7 +52,7 @@ DataFeeds by Rolling Insights provides sports REST feeds for schedules, live upd
 - If you need the event list or IDs, call `schedule`.
 - If you need a PGA field or tee times, call `field`.
 - If you need player/team info, season stats, injuries, or depth charts, check `sport-endpoints.md` first because support varies by sport.
-- Do not call or document injuries/depth charts for NCAABB or NCAAFB; they are unavailable in the reviewed docs.
+- Injuries and depth charts vary by sport. College basketball has both; college football has injuries but not depth charts. Soccer has both when `league` is set. DARTS and PGA have neither.
 - If a sport supports `schedule-season` or `schedule-week`, prefer those when building broader lookup views.
 
 ## Examples to keep in mind

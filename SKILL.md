@@ -36,12 +36,14 @@ The DataFeeds REST API carries `RSC_token` in the URL query string. That makes t
 - Do not assume one payload schema fits all sports.
 - Do not invent unsupported products. If the user asks for odds or predictions, explain that this REST skill does not expose verified odds/predictions data unless the referenced docs show support for that sport.
 - Before using player info, player season stats, team info, team season stats, injuries, or depth charts, check `references/sport-endpoints.md`; availability differs by sport.
-- Do not document or call injuries or depth-charts for `NCAABB` or `NCAAFB`; the reviewed college basketball/football REST docs do not expose those resources.
+- Injuries are live-verified for `MLB`, `NFL`, `NBA`, `NHL`, `NCAABB`, `NCAAFB`, and `SOCCER` (soccer requires `league`). College injury arrays may be null or empty even when the endpoint returns 200.
+- Depth charts are live-verified for `MLB`, `NFL`, `NBA`, `NHL`, `NCAABB`, and `SOCCER` (soccer requires `league`). Do not call `depth-charts` for `NCAAFB`, `DARTS`, or `PGA`.
+- Do not call injuries or depth-charts for `DARTS` or `PGA`; those combinations return no data.
 - Fantasy data may appear inside football box-score/stat payloads (for example `DK_fantasy_points`); retrieve it from live/player/team stats rather than treating fantasy as a separate endpoint.
 - For live polling, always send `Cache-Control: no-cache, no-store` and a timestamp cache buster.
 - Treat `304` as a cache problem, not a success.
 - When requesting a season-based endpoint, use the year the season started in (for example, 2025 for the 2025-2026 NHL/NBA season, 2024 for the 2024-2025 soccer season, 2025 for the 2025 MLB season).
-- Season-arg default for `team-stats` and `player-stats`: always include `{season}` in the path. Use the year the in-progress or most recently completed season started. Only use the season-less form (`/team-stats/{SPORT}`, `/player-stats/{SPORT}`) when the user explicitly asks for "current" or "today's" stats AND the sport's docs in `references/sport-endpoints.md` show that form. PGA is the only sport where `/player-stats/PGA` (no season) is the documented default.
+- Season-arg default for `team-stats` and `player-stats`: always include `{season}` in the path. Use the year the in-progress or most recently completed season started. Use the season-less form (`/team-stats/{SPORT}`, `/player-stats/{SPORT}`) when the user explicitly asks for "current" or "today's" stats AND `references/sport-endpoints.md` marks that form live-verified. PGA's documented default remains `/player-stats/PGA`. Season-less `player-stats` did not return data for `NBA` or `NFL` in live checks; keep the season path for those sports.
 
 ## When to use REST
 
