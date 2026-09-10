@@ -81,10 +81,10 @@ Never hardcode real tokens in scripts, examples, prompts, or committed files.
 
 ```bash
 # Get today's NBA schedule
-./scripts/df-schedule.sh 2026-05-20 NBA
+./scripts/df.sh schedule 2026-05-20 NBA
 
 # Pull live scores and box data for the same date
-./scripts/df-live.sh 2026-05-20 NBA
+./scripts/df.sh live 2026-05-20 NBA
 ```
 
 The scripts read your token from `RSC_TOKEN`, print a redacted URL to stderr, and emit raw JSON to stdout. See [`references/examples.md`](references/examples.md) for end-to-end walkthroughs including NBA scores, MLB recaps, PGA field data, Euro Soccer tables, and a Python client example.
@@ -93,7 +93,7 @@ The scripts read your token from `RSC_TOKEN`, print a redacted URL to stderr, an
 
 - `SKILL.md` — Skill instructions for using DataFeeds safely and consistently inside AI agents and developer tools
 - `references/` — REST API notes, authentication guidance, endpoint matrices, sport-specific payload shapes, workflows, examples, and troubleshooting
-- `scripts/` — Shell helpers for deterministic requests to common REST endpoints
+- `scripts/` — `df.sh`, a validated request runner for every documented REST endpoint shape, plus thin compatibility wrappers for the original helpers
 
 ## Authentication
 
@@ -145,22 +145,38 @@ Use REST first for schedules, live feeds, play-by-play, fields, team and player 
 
 ## Helper scripts
 
-The scripts read the token from `RSC_TOKEN`, print a redacted URL to stderr, and emit raw JSON to stdout.
+`scripts/df.sh` is the primary runner. It validates the endpoint, sport code, and `key=value` parameters, reads the token from `RSC_TOKEN` (sent URL-encoded, never interpolated into a URL string), prints a redacted request line to stderr, and emits raw JSON to stdout.
 
 ```bash
-# Schedule
+# Date-based endpoints
+./scripts/df.sh schedule 2026-04-10 NBA
+./scripts/df.sh live 2026-04-10 NBA game_id=20260410-1-2
+
+# Season-based endpoints
+./scripts/df.sh team-stats 2025 SOCCER league=EPL
+./scripts/df.sh schedule-season 2025 MLB
+
+# Date-less endpoints
+./scripts/df.sh play-by-play MLB game_id=20260515-9-8
+./scripts/df.sh field PGA game_id=2026_19
+./scripts/df.sh injuries NCAABB
+
+# Capability / entitlement probe: a one-line classification instead of the body
+./scripts/df.sh --probe depth-charts NCAAFB
+
+# Full usage and the exit-code table
+./scripts/df.sh --help
+```
+
+Exit codes distinguish each outcome: `0` valid JSON, `2` usage or validation error, `3` missing token, `4` network failure, `5` timeout, `6` HTTP 304, `7` HTTP error (4xx/5xx), `8` non-JSON body, `9` malformed JSON.
+
+The original helpers remain as thin compatibility wrappers over `df.sh` with their previous positional arguments:
+
+```bash
 ./scripts/df-schedule.sh 2026-04-10 NBA
-
-# Live feed
 ./scripts/df-live.sh 2026-04-10 NBA
-
-# Generic endpoint helper
 ./scripts/df-rest.sh live 2026-04-10 NBA
-
-# Play-by-play
 ./scripts/df-play-by-play.sh MLB 20260515-9-8
-
-# PGA field
 ./scripts/df-field.sh PGA 2026_19
 ```
 
