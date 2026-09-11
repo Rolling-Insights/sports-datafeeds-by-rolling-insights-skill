@@ -1,6 +1,6 @@
 # Sports DataFeeds by Rolling Insights — Endpoint Matrix
 
-Use this file to answer “does this sport support X?” before calling an endpoint. Classifications are from live REST checks, not documentation exports. Every cell is one of: live-verified supported, live-verified unsupported, entitlement-blocked, or untested.
+Use this file to answer “does this sport support X?” before calling an endpoint. Classifications are from live REST checks, not documentation exports. Every cell is one of: live-verified supported, live-verified unsupported, not officially supported, entitlement-blocked, or untested.
 
 ## Base patterns
 
@@ -24,7 +24,7 @@ For season-stat endpoints, use the year the season started unless the vendor doc
 
 ## Quick resource availability
 
-Legend: ✅ live-verified supported, — live-verified unsupported or no data. Season-less `/player-stats/{SPORT}` and `/team-stats/{SPORT}` notes are in each sport section.
+Legend: ✅ live-verified supported; — unsupported (live-verified unsupported, no data, or not officially supported). “Not officially supported” means the endpoint may answer `200` on some accounts but the resource is not part of the product contract — treat it as unsupported regardless of wire behavior. Season-less `/player-stats/{SPORT}` and `/team-stats/{SPORT}` notes are in each sport section.
 
 | Sport code | Player info | Player season stats | Team info | Team season stats | Player injuries | Depth charts |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -32,8 +32,8 @@ Legend: ✅ live-verified supported, — live-verified unsupported or no data. S
 | `NFL` | ✅ `/player-info/NFL` | ✅ `/player-stats/{season}/NFL` | ✅ `/team-info/NFL` | ✅ `/team-stats/{season}/NFL` | ✅ `/injuries/NFL` | ✅ `/depth-charts/NFL` |
 | `NBA` | ✅ `/player-info/NBA` | ✅ `/player-stats/{season}/NBA` | ✅ `/team-info/NBA` | ✅ `/team-stats/{season}/NBA` | ✅ `/injuries/NBA` | ✅ `/depth-charts/NBA` |
 | `NHL` | ✅ `/player-info/NHL` | ✅ `/player-stats/{season}/NHL` | ✅ `/team-info/NHL` | ✅ `/team-stats/{season}/NHL` | ✅ `/injuries/NHL` | ✅ `/depth-charts/NHL` |
-| `NCAABB` | ✅ `/player-info/NCAABB` | ✅ `/player-stats/{season}/NCAABB` | ✅ `/team-info/NCAABB` | ✅ `/team-stats/{season}/NCAABB` | ✅ `/injuries/NCAABB` | ✅ `/depth-charts/NCAABB` |
-| `NCAAFB` | ✅ `/player-info/NCAAFB` | ✅ `/player-stats/{season}/NCAAFB` | ✅ `/team-info/NCAAFB` | ✅ `/team-stats/{season}/NCAAFB` | ✅ `/injuries/NCAAFB` | — |
+| `NCAABB` | ✅ `/player-info/NCAABB` | ✅ `/player-stats/{season}/NCAABB` | ✅ `/team-info/NCAABB` | ✅ `/team-stats/{season}/NCAABB` | — | — |
+| `NCAAFB` | ✅ `/player-info/NCAAFB` | ✅ `/player-stats/{season}/NCAAFB` | ✅ `/team-info/NCAAFB` | ✅ `/team-stats/{season}/NCAAFB` | — | — |
 | `SOCCER` + `league` | ✅ `/player-info/SOCCER?league=EPL\|LALIGA\|SERIEA` | ✅ `/player-stats/{season}/SOCCER?league=...` | ✅ `/team-info/SOCCER?league=...` | ✅ `/team-stats/{season}/SOCCER?league=...` | ✅ `/injuries/SOCCER?league=...` | ✅ `/depth-charts/SOCCER?league=...` |
 | `DARTS` | ✅ `/player-info/DARTS` | ✅ `/player-stats/{season}/DARTS` | — | — | — | — |
 | `PGA` | ✅ `/player-info/PGA` | ✅ `/player-stats/PGA` | — | — | — | — |
@@ -159,20 +159,19 @@ Live-verified endpoints:
 - team-stats
 - player-info
 - player-stats
-- injuries
-- depth-charts
 
 Resource access:
 - Player info: `GET /player-info/NCAABB`; optional `team_id`.
 - Player season stats: `GET /player-stats/{season}/NCAABB`; optional `team_id` or `player_id`. Season-less `/player-stats/NCAABB` is live-verified.
 - Team info: `GET /team-info/NCAABB`; optional `team_id`.
 - Team season stats: `GET /team-stats/{season}/NCAABB`; optional `team_id`. Season-less `/team-stats/NCAABB` is live-verified.
-- Player injuries: `GET /injuries/NCAABB`; optional `team_id`. The endpoint returns 200; injury arrays may be null or empty.
-- Depth charts: `GET /depth-charts/NCAABB`; optional `team_id`. Club-keyed position groups (`PG`/`SG`/`SF`/`PF`/`C`).
+- Player injuries: not officially supported. Do not call `/injuries/NCAABB`.
+- Depth charts: not officially supported. Do not call `/depth-charts/NCAABB`.
 
 Notes:
-- `schedule`, `live`, `team-info`, `team-stats`, `player-info`, `player-stats`, `injuries`, and `depth-charts` support `team_id`.
+- `schedule`, `live`, `team-info`, `team-stats`, `player-info`, and `player-stats` support `team_id`.
 - `schedule` and `live` support `game_id`.
+- Injuries and depth charts are not officially supported for NCAABB. The endpoints may answer `200` with rows on some accounts; that is not a product feature — treat both as unsupported regardless of wire behavior.
 - Play-by-play, `field`, and `events` are live-verified unsupported for NCAABB.
 
 ## NCAAFB
@@ -187,20 +186,20 @@ Live-verified endpoints:
 - team-stats
 - player-info
 - player-stats
-- injuries
 
 Resource access:
 - Player info: `GET /player-info/NCAAFB`; optional `team_id`.
 - Player season stats: `GET /player-stats/{season}/NCAAFB`; optional `team_id` or `player_id`. Season-less `/player-stats/NCAAFB` is live-verified.
 - Team info: `GET /team-info/NCAAFB`; optional `team_id`.
 - Team season stats: `GET /team-stats/{season}/NCAAFB`; optional `team_id`. Season-less `/team-stats/NCAAFB` is live-verified.
-- Player injuries: `GET /injuries/NCAAFB`; optional `team_id`. The endpoint returns 200; injury arrays may be null or empty.
-- Depth charts: live-verified unsupported (`404` on `/depth-charts/NCAAFB`).
+- Player injuries: not officially supported. Do not call `/injuries/NCAAFB`.
+- Depth charts: not officially supported. Do not call `/depth-charts/NCAAFB` (live-verified `404`).
 
 Notes:
-- `schedule`, `live`, `team-info`, `team-stats`, `player-info`, `player-stats`, and `injuries` support `team_id`.
+- `schedule`, `live`, `team-info`, `team-stats`, `player-info`, and `player-stats` support `team_id`.
 - `schedule` and `live` support `game_id`.
-- Do not call NCAAFB depth-charts, play-by-play, `field`, or `events`.
+- Injuries and depth charts are not officially supported for NCAAFB. `/injuries/NCAAFB` may answer `200` with rows on some accounts; that is not a product feature — treat both as unsupported regardless of wire behavior.
+- Do not call NCAAFB injuries, depth-charts, play-by-play, `field`, or `events`.
 
 ## DARTS
 Live-verified endpoints:

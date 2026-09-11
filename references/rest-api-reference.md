@@ -118,9 +118,8 @@ Rules:
 - use the vendor sport code exactly: `NCAABB` and `NCAAFB`, not `NCAA_BB` / `NCAA_FB`, in REST paths
 - use the year the season started for `{season_or_year}` unless the sport docs say otherwise
 - soccer requires `league=EPL|LALIGA|SERIEA` on soccer endpoints; omitting `league` returns `404` URL-structure error
-- injuries are live-verified for `MLB`, `NFL`, `NBA`, `NHL`, `NCAABB`, `NCAAFB`, and `SOCCER`
-- depth charts are live-verified for `MLB`, `NFL`, `NBA`, `NHL`, `NCAABB`, and `SOCCER`; do not call them for `NCAAFB`, `DARTS`, or `PGA`
-- do not call injuries for `DARTS` or `PGA`
+- injuries and depth charts are live-verified for `MLB`, `NFL`, `NBA`, `NHL`, and `SOCCER`
+- do not call injuries or depth charts for `NCAABB`, `NCAAFB`, `DARTS`, or `PGA`; college injuries and depth charts are not officially supported even where the endpoint answers `200`
 - DARTS and PGA have player resources but no team resources
 - season-less `/team-stats/{SPORT}` is live-verified for the team sports and soccer; season-less `/player-stats/{SPORT}` is live-verified for `MLB`, `NHL`, `NCAABB`, `NCAAFB`, `SOCCER`, `DARTS`, and `PGA`, but not `NBA` or `NFL`
 
@@ -130,9 +129,7 @@ Examples:
 - `/team-info/NCAABB?RSC_token=...&team_id=36`
 - `/team-stats/2021/NCAAFB?RSC_token=...&team_id=1`
 - `/injuries/NFL?RSC_token=...&team_id=1`
-- `/injuries/NCAABB?RSC_token=...`
 - `/depth-charts/MLB?RSC_token=...&team_id=1`
-- `/depth-charts/NCAABB?RSC_token=...`
 - `/player-info/SOCCER?RSC_token=...&league=EPL&team_id=7`
 - `/player-stats/2025/SOCCER?RSC_token=...&league=EPL`
 - `/team-stats/SOCCER?RSC_token=...&league=LALIGA`
@@ -221,14 +218,11 @@ Most responses are wrapped like:
 - `team-stats/2018/NCAABB`
 - `player-info/NCAABB`
 - `player-stats/2018/NCAABB`
-- `injuries/NCAABB` (200; injury lists may be null/empty)
-- `depth-charts/NCAABB`
 - `team-info/NCAAFB`
 - `team-stats/2021/NCAAFB`
 - `player-info/NCAAFB`
 - `player-stats/2024/NCAAFB`
-- `injuries/NCAAFB` (200; injury lists may be null/empty)
-- NCAAFB depth charts are live-verified unsupported.
+- College injuries and depth charts are not officially supported for `NCAABB` or `NCAAFB`; do not call them even if the endpoint answers.
 
 ### Soccer
 - `team-info/SOCCER?league=EPL`

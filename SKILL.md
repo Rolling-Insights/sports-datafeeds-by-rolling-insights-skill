@@ -36,9 +36,8 @@ The DataFeeds REST API carries `RSC_token` in the URL query string. That makes t
 - Do not assume one payload schema fits all sports.
 - Do not invent unsupported products. If the user asks for odds or predictions, explain that this REST skill does not expose verified odds/predictions data unless the referenced docs show support for that sport.
 - Before using player info, player season stats, team info, team season stats, injuries, or depth charts, check `references/sport-endpoints.md`; availability differs by sport.
-- Injuries are live-verified for `MLB`, `NFL`, `NBA`, `NHL`, `NCAABB`, `NCAAFB`, and `SOCCER` (soccer requires `league`). College injury arrays may be null or empty even when the endpoint returns 200.
-- Depth charts are live-verified for `MLB`, `NFL`, `NBA`, `NHL`, `NCAABB`, and `SOCCER` (soccer requires `league`). Do not call `depth-charts` for `NCAAFB`, `DARTS`, or `PGA`.
-- Do not call injuries or depth-charts for `DARTS` or `PGA`; those combinations return no data.
+- Injuries and depth charts are live-verified for `MLB`, `NFL`, `NBA`, `NHL`, and `SOCCER` (soccer requires `league`).
+- Do not call `injuries` or `depth-charts` for `NCAABB`, `NCAAFB`, `DARTS`, or `PGA`. College injuries and depth charts are not an official product feature: the endpoints may answer `200` on some accounts, but treat them as unsupported regardless of wire behavior. DARTS and PGA return no data.
 - Fantasy data may appear inside football box-score/stat payloads (for example `DK_fantasy_points`); retrieve it from live/player/team stats rather than treating fantasy as a separate endpoint.
 - For live polling, always send `Cache-Control: no-cache, no-store` and a timestamp cache buster.
 - Treat `304` as a cache problem, not a success.

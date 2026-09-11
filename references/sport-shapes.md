@@ -82,10 +82,6 @@ Team-stats and player-stats nest recorded numbers under `regular_season`. There 
 
 Depth charts are club-keyed objects with `Forward`, `Midfielder`, `Defender`, `Goalkeeper`, and `team_id` — not a flat array.
 
-## College basketball
-
-NCAABB depth charts are club-keyed position groups (`PG`, `SG`, `SF`, `PF`, `C`). Injury endpoints return per-team rows; the `injuries` array may be null.
-
 ## Parsing rule
 
 Always inspect the first payload item for the sport before writing logic. The safest pattern is:
