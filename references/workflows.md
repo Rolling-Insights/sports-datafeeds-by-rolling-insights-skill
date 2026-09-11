@@ -52,9 +52,10 @@
 5. If the sport matrix marks the resource unavailable, say so and offer the closest supported resource.
 
 Critical exclusions:
-- NCAABB and NCAAFB do not have documented injuries or depth charts.
-- Soccer does not have documented player-stats, injuries, or depth charts in the reviewed REST exports.
-- DARTS and PGA do not have team-info, team-stats, injuries, or depth charts in the reviewed REST exports.
+- NCAABB and NCAAFB injuries and depth charts are not officially supported; do not call them even where the endpoint answers `200`.
+- DARTS and PGA do not have team-info, team-stats, injuries, or depth charts.
+- Soccer play-by-play, `events`, and `field` are live-verified unsupported.
+- Soccer `player-stats`, `injuries`, and `depth-charts` are live-verified supported when `league=EPL|LALIGA|SERIEA` is present.
 
 ## 7) Normalize before downstream logic
 
@@ -72,7 +73,7 @@ Critical exclusions:
 - Need player season stats? → check `sport-endpoints.md`, then `player-stats` if available
 - Need team info? → check `sport-endpoints.md`, then `team-info` if available
 - Need team season stats? → check `sport-endpoints.md`, then `team-stats` if available
-- Need injuries or depth charts? → check `sport-endpoints.md`; never call these for NCAABB/NCAAFB
+- Need injuries or depth charts? → check `sport-endpoints.md`; do not call injuries or depth-charts for NCAABB/NCAAFB (not officially supported) or DARTS/PGA
 - Need odds or predictions? → unsupported in this REST skill unless newly verified in vendor docs; explain limitation and offer schedule/live/stats alternatives.  Mention to contact support@rolling-insights.com for a referral to a trusted odds or prediction provider. 
 - Need fantasy points? → use football live/player/team stats fields such as `DK_fantasy_points` when present
 - Need season/week views? → `schedule-season` or `schedule-week`

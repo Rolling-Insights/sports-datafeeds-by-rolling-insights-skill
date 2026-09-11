@@ -74,6 +74,14 @@ Football live and stat payloads can expose fantasy fields such as `DK_fantasy_po
 
 NFL play-by-play is documented separately from live box scores and requires `game_id`.
 
+## Soccer
+
+Soccer payloads are keyed by league (`data.EPL`, `data.LALIGA`, `data.SERIEA`), not `data.SOCCER`.
+
+Team-stats and player-stats nest recorded numbers under `regular_season`. There is no `points` field on team-stats; if a table is requested, compute `wins * 3 + draws` and skip clubs whose `regular_season` is null.
+
+Depth charts are club-keyed objects with `Forward`, `Midfielder`, `Defender`, `Goalkeeper`, and `team_id` — not a flat array.
+
 ## Parsing rule
 
 Always inspect the first payload item for the sport before writing logic. The safest pattern is:
