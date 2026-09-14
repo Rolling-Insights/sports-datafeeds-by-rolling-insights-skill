@@ -136,33 +136,82 @@ Preserve `player_ID` if you'll later call `/player-stats/PGA` or `/player-info/P
 
 ---
 
-## Example 4 — "What's the EPL table look like this season?" (Soccer, team-stats with league)
+## Example 4 — "What's the EPL table look like this season?" (Soccer, standings from team-stats)
+
+There is no standings endpoint. Build the table from `team-stats` for `SOCCER` with a documented `league` (`EPL`, `LALIGA`, or `SERIEA`). The shapes and numbers below were captured from live `team-stats` responses on 2026-09-14 (EPL, LALIGA, and SERIEA; seasons 2024, 2025, and the in-progress 2026); the rows shown are from the 2025 EPL response. Step-by-step workflow: `references/workflows.md` §8.
 
 **Step 1 — pull season team stats.** Use the year the season started; for the 2025-2026 EPL season pass `2025`:
 ```
 GET /team-stats/2025/SOCCER?RSC_token=$RSC&league=EPL
 ```
-Abridged response:
+Abridged response — three representative rows; other counting stats (`corners`, `saves`, `shots_*`, `fouls_*`, `free_kicks_*`, cards, penalties) elided:
 ```json
 {
   "data": {
     "EPL": [
-      { "team_id": 7, "team": "Arsenal", "regular_season": { "games_played": 36, "wins": 25, "draws": 7, "losses": 4 } },
-      { "team_id": 11, "team": "Manchester City", "regular_season": { "games_played": 36, "wins": 24, "draws": 6, "losses": 6 } }
+      { "team_id": 1, "team": "Arsenal",
+        "regular_season": { "games_played": 38, "wins": 26, "draws": 7, "losses": 5,
+                            "goals_scored": 71, "goals_conceded": 27, "goals_conceeded": 0, "clean_sheets": 19 } },
+      { "team_id": 5, "team": "Cardiff City", "regular_season": null },
+      { "team_id": 8, "team": "Everton",
+        "regular_season": { "games_played": 36, "wins": 13, "draws": 9, "losses": 14,
+                            "goals_scored": 45, "goals_conceded": 45, "ties": 0, "clean_sheets": 11 } }
     ]
   }
 }
 ```
-Note the response is keyed by the league (`data.EPL`), not `data.SOCCER`. Stats nest under `regular_season`. There is no `points` field — compute `wins * 3 + draws`. Skip clubs whose `regular_season` is null.
 
-**Step 2 — answer.** Sort by computed points desc, format top N.
+What the response actually looks like:
+- Keyed by the league (`data.EPL`), not `data.SOCCER`. Each row is `{ team_id, team, regular_season }`; no `postseason` key was observed on soccer team-stats.
+- The array lists more clubs than the league holds (30 rows for the 20-club EPL). Clubs outside the top flight that season come back with `regular_season: null`. In every capture the populated rows numbered exactly 20, matching league size; the null set changes from season to season.
+- There is no `points` field and no goal-difference field. Compute `points = wins * 3 + draws` and `goal_difference = goals_scored - goals_conceded`.
+- Coverage is not guaranteed complete even for a finished season: in the 2025 EPL response six clubs showed 36 or 37 of 38 matches. `wins + draws + losses` equalled `games_played` on every row, so `games_played` is the number of matches recorded, not the schedule length.
+- Goals against: read `goals_conceded`. A misspelled `goals_conceeded` key also appears. In the 2024 season it was the only goals-against key and held the real value; in 2025 it sat beside `goals_conceded` on most rows with a small number that does not match goals against. Fall back to `goals_conceeded` only when `goals_conceded` is absent; never add the two.
+- Stray keys happen (Everton carries `ties: 0` above). Map only the fields you need.
 
-> EPL table (36 played):
-> 1. Arsenal — 82 pts (25-7-4)
-> 2. Manchester City — 78 pts (24-6-6)
-> ...
+**Step 2 — build the table, null-safe.**
+```python
+LEAGUE = "EPL"
+rows = payload.get("data", {}).get(LEAGUE, [])
+table, no_stats = [], []
+for row in rows:
+    rs = row.get("regular_season")
+    if not rs:                              # null → not in this season's table; no arithmetic
+        no_stats.append(row.get("team"))
+        continue
+    n = lambda key: rs.get(key) or 0        # missing/null counter → 0
+    w, d, l = n("wins"), n("draws"), n("losses")
+    gf = n("goals_scored")
+    ga = rs.get("goals_conceded")
+    if ga is None:                          # older seasons expose only the misspelled key
+        ga = n("goals_conceeded")
+    table.append({"team": row["team"], "team_id": row["team_id"],
+                  "played": rs.get("games_played") or (w + d + l),
+                  "w": w, "d": d, "l": l, "gf": gf, "ga": ga,
+                  "gd": gf - ga, "points": w * 3 + d})
+table.sort(key=lambda t: (-t["points"], -t["gd"], -t["gf"]))
+max_played = max((t["played"] for t in table), default=0)   # empty table → 0, no ValueError
+short = [(t["team"], t["played"]) for t in table if t["played"] < max_played]
+```
 
-Soccer `player-stats`, `injuries`, and `depth-charts` are live-verified when `league=EPL|LALIGA|SERIEA` is set. Player stats also nest under `regular_season`. This example is not a standings-product workflow; it only shows how to read `team-stats`.
+Sort order is points, then goal difference, then goals scored — the first three Premier League tiebreakers. La Liga and Serie A rank level clubs on head-to-head results first, which `team-stats` cannot supply, so present level clubs in those leagues as level.
+
+**Step 3 — answer, and say what the numbers are.**
+
+> EPL 2025-26, computed from DataFeeds `team-stats` (`regular_season`); points = wins × 3 + draws:
+> 1. Arsenal — 85 pts (38 played, 26-7-5, GD +44)
+> 2. Manchester City — 78 pts (38, 23-9-6, +42)
+> 3. Manchester United — 71 pts (38, 20-11-7, +20)
+> …
+> 7. Brighton & Hove Albion — 53 pts (38, 14-11-13, +7); 8. Brentford — 53 (38, +6); 9. Sunderland — 53 (37, −6)
+>
+> Coverage: 20 clubs have recorded stats. 14 show all 38 matches; Everton (36), Fulham, Newcastle, Tottenham, Leeds, and Sunderland (37 each) are short, so their points may still rise. Ten further clubs in the response have no 2025 stats and are omitted. This is derived from the API's counting stats, not an official table.
+
+Always include the coverage line when any club's `games_played` is below the maximum, when clubs were omitted for null stats, or when the season is in progress (early-season 2026 rows ranged from 1 to 5 matches per club). If every populated club shows the same `games_played`, say that instead.
+
+**Other leagues, same shape.** The 2025 LALIGA response had 26 rows, 6 null, and three clubs at 37 of 38 (Barcelona, Atlético Madrid, Elche). The 2025 SERIEA response had 24 rows, 4 null, and ten clubs below 38, with AS Roma (37 played) and AC Milan (38) level on 70 points — exactly the case the coverage line exists for.
+
+Soccer `player-stats`, `injuries`, and `depth-charts` are live-verified when `league=EPL|LALIGA|SERIEA` is set. Player stats also nest under `regular_season`.
 
 ---
 

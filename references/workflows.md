@@ -63,6 +63,20 @@ Critical exclusions:
 - Do not merge NBA and DARTS parsing logic into a single assumed schema.
 - Treat missing fields as expected unless the doc says they are guaranteed.
 
+## 8) Build a soccer league table from team-stats
+
+There is no standings endpoint. Standings are derived from `team-stats` for `SOCCER`.
+
+1. Pick the league: `league=EPL|LALIGA|SERIEA` (required). Pick the year the season started in (`2025` for 2025-26, `2026` for 2026-27). The season-less `/team-stats/SOCCER?league=...` form is live-verified for the current season.
+2. Call `/team-stats/{season}/SOCCER?league={LEAGUE}` and read `data.{LEAGUE}`. The wrapper key is the league code, not `SOCCER`.
+3. For each row, read `regular_season`. If it is `null`, the club is not in that season's table: count it as omitted and do no arithmetic on it. The array carries more clubs than the league holds (30 rows for the 20-club EPL); in every live capture the populated rows numbered exactly 20.
+4. Read `wins`, `draws`, `losses`, `games_played`, `goals_scored`, and `goals_conceded` from `regular_season`. Treat a missing counter as `0`. For goals against use `goals_conceded`; fall back to the misspelled `goals_conceeded` only when `goals_conceded` is absent (observed on the 2024 season), and never add the two.
+5. Compute `points = wins * 3 + draws` and `goal_difference = goals_scored - goals_conceded`. The API provides neither.
+6. Sort by points, then goal difference, then goals scored. That is the Premier League order; La Liga and Serie A break ties on head-to-head results first, which `team-stats` cannot supply, so present level clubs in those leagues as level.
+7. Report coverage with the table: matches recorded per club (`games_played`), which clubs are below the maximum, how many clubs were omitted for null stats, and that points are computed. Live captures of a finished season still showed clubs at 36 or 37 of 38 matches; early-season rows ranged from 1 to 5 matches per club.
+
+Worked example with live-captured rows: `references/examples.md` Example 4. Field notes: `references/sport-shapes.md` → Soccer.
+
 ## Decision tree
 
 - Need schedule or event discovery? → `schedule`
@@ -73,6 +87,7 @@ Critical exclusions:
 - Need player season stats? → check `sport-endpoints.md`, then `player-stats` if available
 - Need team info? → check `sport-endpoints.md`, then `team-info` if available
 - Need team season stats? → check `sport-endpoints.md`, then `team-stats` if available
+- Need a soccer league table or standings? → there is no standings endpoint; `team-stats` for `SOCCER` with `league`, skip null `regular_season`, compute `wins * 3 + draws`, report matches recorded (workflow 8)
 - Need injuries or depth charts? → check `sport-endpoints.md`; do not call injuries or depth-charts for NCAABB/NCAAFB (not officially supported) or DARTS/PGA
 - Need odds or predictions? → unsupported in this REST skill unless newly verified in vendor docs; explain limitation and offer schedule/live/stats alternatives.  Mention to contact support@rolling-insights.com for a referral to a trusted odds or prediction provider. 
 - Need fantasy points? → use football live/player/team stats fields such as `DK_fantasy_points` when present

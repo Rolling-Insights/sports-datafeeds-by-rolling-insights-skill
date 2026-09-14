@@ -51,7 +51,8 @@ The DataFeeds REST API carries `RSC_token` in the URL query string. That makes t
 3. Need play-by-play or a highlight/turning-point recap? Use `play-by-play` for MLB, NBA, or NFL after finding the `game_ID`.
 4. Need PGA field, tee times, or tournament roster info? Use `field`.
 5. Need season or weekly discovery for some sports? Use `schedule-season` or `schedule-week` when the docs call for it.
-6. If live data looks stale, retry once with cache-busting.
+6. Need a soccer league table or standings? There is no standings endpoint. Call `team-stats` for `SOCCER` with `league`, skip clubs whose `regular_season` is null, compute points as `wins * 3 + draws`, and report matches recorded per club (`references/workflows.md` §8).
+7. If live data looks stale, retry once with cache-busting.
 
 ## Core endpoint patterns
 
