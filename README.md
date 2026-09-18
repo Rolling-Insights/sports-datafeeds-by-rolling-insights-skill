@@ -80,20 +80,20 @@ Never hardcode real tokens in scripts, examples, prompts, or committed files.
 ### 3. Make your first request
 
 ```bash
-# Get today's NBA schedule
-./scripts/df.sh schedule 2026-05-20 NBA
+# Get the NBA schedule for a date: body to ./df-out/<path-slug>-<timestamp>.json, one summary line on stdout
+./scripts/df.sh 'https://rest.datafeeds.rolling-insights.com/api/v1/schedule/2026-05-20/NBA'
 
-# Pull live scores and box data for the same date
-./scripts/df.sh live 2026-05-20 NBA
+# Pull live scores and box data for the same date, body inline
+./scripts/df.sh --stdout 'https://rest.datafeeds.rolling-insights.com/api/v1/live/2026-05-20/NBA'
 ```
 
-The scripts read your token from `RSC_TOKEN`, print a redacted URL to stderr, and emit raw JSON to stdout. See [`references/examples.md`](references/examples.md) for end-to-end walkthroughs including NBA scores, MLB recaps, PGA field data, Euro Soccer tables, and a Python client example.
+The runner reads your token from `RSC_TOKEN` and appends it to the request itself, prints a redacted URL to stderr, and writes the JSON body to a file (or to stdout with `--stdout`). See [`references/examples.md`](references/examples.md) for end-to-end walkthroughs including NBA scores, MLB recaps, PGA field data, Euro Soccer tables, and a Python client example.
 
 ## What is included
 
 - `SKILL.md` — Skill instructions for using DataFeeds safely and consistently inside AI agents and developer tools
 - `references/` — REST API notes, authentication guidance, endpoint matrices, sport-specific payload shapes, workflows, examples, and troubleshooting
-- `scripts/` — `df.sh`, a validated request runner for every documented REST endpoint shape, plus thin compatibility wrappers for the original helpers
+- `scripts/` — `df.sh`, the safe request runner: takes a full request URL, pins the host, appends the token, classifies the outcome, and writes the body to a file with a one-line summary
 
 ## Authentication
 
@@ -145,42 +145,32 @@ Use REST first for schedules, live feeds, play-by-play, fields, team and player 
 
 ## Helper scripts
 
-`scripts/df.sh` is the primary runner. It validates the endpoint, sport code, and `key=value` parameters, reads the token from `RSC_TOKEN` (sent URL-encoded, never interpolated into a URL string), prints a redacted request line to stderr, and emits raw JSON to stdout.
+`scripts/df.sh` is the one safe way to call the REST API from a shell. It takes the full request URL without the token, exactly what your own code would call, and adds the rest: it refuses any host other than `rest.datafeeds.rolling-insights.com` over `https://` (so the token can never be sent elsewhere), reads the token from `RSC_TOKEN` and sends it URL-encoded (never interpolated into a URL string), prints a redacted request line to stderr, and classifies the outcome. The runner has no endpoint knowledge of its own; build the URL from the patterns above.
 
 ```bash
-# Date-based endpoints
-./scripts/df.sh schedule 2026-04-10 NBA
-./scripts/df.sh live 2026-04-10 NBA game_id=20260410-1-2
+# Default: the body goes to ./df-out/<path-slug>-<timestamp>.json and stdout gets one summary line
+./scripts/df.sh 'https://rest.datafeeds.rolling-insights.com/api/v1/schedule/2026-04-10/NBA'
+# http=200 class=ok bytes=<n> content_type=application/json file=./df-out/schedule-2026-04-10-NBA-<timestamp>.json json=object{1} keys=data data=NBA:array[<n>]
 
-# Season-based endpoints
-./scripts/df.sh team-stats 2025 SOCCER league=EPL
-./scripts/df.sh schedule-season 2025 MLB
+# A bare path is prefixed with the base URL
+./scripts/df.sh '/team-stats/2025/SOCCER?league=EPL'
 
-# Date-less endpoints
-./scripts/df.sh play-by-play MLB game_id=20260515-9-8
-./scripts/df.sh field PGA game_id=2026_19
-./scripts/df.sh injuries NCAABB
+# Small payload: print the body inline instead of writing a file
+./scripts/df.sh --stdout 'https://rest.datafeeds.rolling-insights.com/api/v1/live/2026-04-10/NBA?game_id=20260410-1-2'
 
-# Capability / entitlement probe: a one-line classification instead of the body
-./scripts/df.sh --probe depth-charts NCAAFB
+# Choose the output file
+./scripts/df.sh --out nba-schedule.json '/schedule/2026-04-10/NBA'
+
+# Print the redacted request line without a token or a request
+./scripts/df.sh --dry-run '/play-by-play/MLB?game_id=20260515-9-8'
 
 # Full usage and the exit-code table
 ./scripts/df.sh --help
 ```
 
-Exit codes distinguish each outcome: `0` valid JSON, `2` usage or validation error, `3` missing token, `4` network failure, `5` timeout, `6` HTTP 304, `7` HTTP error (4xx/5xx), `8` non-JSON body, `9` malformed JSON.
+The summary line reports the HTTP code, the outcome class, the byte count, the content type, the file written, the top-level keys, and the shape under `data` (key names and container sizes only, never values). Exit codes distinguish each outcome: `0` valid JSON, `2` usage error or refused URL, `3` missing token, `4` network failure, `5` timeout, `6` HTTP 304, `7` HTTP error (4xx/5xx or an unfollowed redirect), `8` non-JSON body, `9` malformed JSON.
 
-The original helpers remain as thin compatibility wrappers over `df.sh` with their previous positional arguments:
-
-```bash
-./scripts/df-schedule.sh 2026-04-10 NBA
-./scripts/df-live.sh 2026-04-10 NBA
-./scripts/df-rest.sh live 2026-04-10 NBA
-./scripts/df-play-by-play.sh MLB 20260515-9-8
-./scripts/df-field.sh PGA 2026_19
-```
-
-For live polling, send no-cache headers and a timestamp cache buster. The bundled scripts do this automatically.
+Never put `RSC_token=` in the URL: the runner refuses it. For live polling, send no-cache headers and a timestamp cache buster; the runner does this automatically.
 
 ## Reference guide
 
