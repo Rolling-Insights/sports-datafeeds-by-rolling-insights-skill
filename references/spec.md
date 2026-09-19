@@ -11,6 +11,8 @@ jq '.paths | keys' /tmp/spec.json
 jq -f scripts/route.jq --arg path '/live/{date}/NBA' /tmp/spec.json
 ```
 
+Note the date you downloaded it; the spec carries no per-deploy version yet.
+
 `scripts/route.jq` ships with this skill (path relative to the skill directory; jq 1.6 or later, nothing else).
 It prints one object: `path`, `summary`, `description`, `parameters` (name, `in`, required, description,
 schema with enums) and `response`, the 200 JSON schema with every `$ref` resolved. Redirect it to a file
@@ -26,15 +28,6 @@ jq --arg p '/live/{date}/NBA' '.paths[$p].get | {summary, description}' /tmp/spe
 
 An unknown path fails with the closest matching paths on stderr. Paths are matched as written in the
 spec, braces included (a case-insensitive match is tried second).
-
-## The version to cite
-
-```bash
-jq '.info | {version, "x-generated-at", "x-git-sha"}' /tmp/spec.json
-```
-
-`x-generated-at` and `x-git-sha` arrive with DF-2802 and are `null` until then; cite whatever is
-non-null together with the date you downloaded the file.
 
 ## Two rules
 
