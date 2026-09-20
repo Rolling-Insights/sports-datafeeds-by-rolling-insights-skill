@@ -1,9 +1,10 @@
 # route.jq — resolve one route of the DataFeeds OpenAPI spec: its request
 # parameters and its 200 application/json response, with every $ref expanded.
 #
-#   curl -s https://docs.datafeeds.rolling-insights.com/spec.json -o /tmp/spec.json
-#   jq '.paths | keys' /tmp/spec.json
-#   jq -f scripts/route.jq --arg path '/live/{date}/NBA' /tmp/spec.json
+#   curl -s https://docs.datafeeds.rolling-insights.com/spec.json -o "${TMPDIR:-/tmp}/spec.json"
+#   jq '.paths | keys' "${TMPDIR:-/tmp}/spec.json"
+#   jq -f scripts/route.jq --arg path '/live/{date}/NBA' "${TMPDIR:-/tmp}/spec.json"
+#   jq -f scripts/route.jq --arg path '/live/{date}/MLB' "${TMPDIR:-/tmp}/spec.json" | jq -r -f scripts/fields.jq
 #
 # Output: one object {path, summary, description, parameters, response}.
 #   parameters: [{name, in, required, description, schema}] with schema resolved
