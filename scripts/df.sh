@@ -95,7 +95,7 @@ Exit codes (each outcome is reported distinctly on stderr):
   3  missing token
   4  network failure (curl could not complete the transfer; HTTP code 000)
   5  timeout (connect or total)
-  6  HTTP 304 Not Modified (no body; a cache problem, not data)
+  6  HTTP 304 Not Modified (no body: nothing to return for that date, season or league)
   7  HTTP error: 4xx / 5xx, or a redirect that was not followed (body excerpt on stderr)
   8  HTTP 2xx but the body is not JSON (empty, plain text, HTML)
   9  HTTP 2xx and the body looks like JSON but does not parse
@@ -402,7 +402,7 @@ case "${CLASS}" in
     echo "Network failure: transfer did not complete (curl exit ${CURL_RC}, HTTP code ${HTTP_CODE})" >&2
     ;;
   not-modified)
-    echo "304 Not Modified: no body returned (a cache problem, not data)" >&2
+    echo "304 Not Modified: nothing to return for that request (date, season or league); no body" >&2
     ;;
   http-error)
     emit_body_excerpt "${TMP_BODY}" "${BYTES}"
