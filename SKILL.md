@@ -86,15 +86,15 @@ Trigger: you are about to call the REST API, or write code that does.
 
 1. Fetch the spec once per session:
    ```bash
-   curl -s https://docs.datafeeds.rolling-insights.com/spec.json -o /tmp/spec.json
+   curl -s https://docs.datafeeds.rolling-insights.com/spec.json -o "${TMPDIR:-/tmp}/spec.json"
    ```
 2. List every route:
    ```bash
-   jq '.paths | keys' /tmp/spec.json
+   jq '.paths | keys' "${TMPDIR:-/tmp}/spec.json"
    ```
 3. Resolve the route you are considering:
    ```bash
-   jq -f scripts/route.jq --arg path '/live/{date}/NBA' /tmp/spec.json
+   jq -f scripts/route.jq --arg path '/live/{date}/NBA' "${TMPDIR:-/tmp}/spec.json"
    ```
 4. No shell: fetch `https://docs.datafeeds.rolling-insights.com/spec.json` directly, read `paths`
    for the route list and the route's `get` object, and follow each `$ref` into
@@ -115,12 +115,17 @@ Trigger: you are writing a parser, a type, a schema, or any code that reads a fi
 
 1. Resolve the route and keep it:
    ```bash
-   jq -f scripts/route.jq --arg path '<path>' /tmp/spec.json > /tmp/route.json
+   jq -f scripts/route.jq --arg path '<path>' "${TMPDIR:-/tmp}/spec.json" > "${TMPDIR:-/tmp}/route.json"
    ```
-2. Write the code against `response` in `/tmp/route.json`: its key names, nesting, types,
+2. Write the code against `response` in `"${TMPDIR:-/tmp}/route.json"`: its key names, nesting, types,
    nullability and enums. The keys of one row, for the comparison in step 4:
    ```bash
-   jq '[.response.properties.data.properties[] | (.items // .additionalProperties // .) | (.properties // ([.anyOf[]?, .oneOf[]?] | map(.properties // {}) | add) // {}) | keys[]] | unique' /tmp/route.json
+   jq '[.response.properties.data.properties[] | (.items // .additionalProperties // .) | (.properties // ([.anyOf[]?, .oneOf[]?] | map(.properties // {}) | add) // {}) | keys[]] | unique' "${TMPDIR:-/tmp}/route.json"
+   ```
+   To locate a nested field, list every field path of the response with its type, one per line
+   (`data.MLB[].full_box.home_team.score  integer`; `[]` marks array items, `.*` a keyed map):
+   ```bash
+   jq -f scripts/route.jq --arg path '/live/{date}/MLB' "${TMPDIR:-/tmp}/spec.json" | jq -r -f scripts/fields.jq
    ```
 3. If `RSC_TOKEN` is set, make one real call through the runner with the full URL built from the
    route (the path with values, plus the query parameters the route lists):
@@ -165,7 +170,7 @@ info or stats; a whole league or one game).
 1. List the routes (Rule 3, step 2) and keep every candidate that names the sport and the resource.
 2. Read each candidate's summary and description:
    ```bash
-   jq --arg p '/schedule-week/{date}/NBA' '.paths[$p].get | {summary, description}' /tmp/spec.json
+   jq --arg p '/schedule-week/{date}/NBA' '.paths[$p].get | {summary, description}' "${TMPDIR:-/tmp}/spec.json"
    ```
 3. Resolve the finalists (Rule 3, step 3) and compare their `parameters` and `response` with what
    the user needs.

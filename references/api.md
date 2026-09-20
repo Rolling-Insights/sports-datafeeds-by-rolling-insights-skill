@@ -84,6 +84,9 @@ accepted only with `DF_ALLOW_INSECURE=1`, for a local mock server.
 Flags: `--stdout`, `--out <path>`, `--dry-run`, `--timeout N` (default 60; env `DF_TIMEOUT`),
 `--connect-timeout N` (default 10; env `DF_CONNECT_TIMEOUT`), `-h` / `--help`.
 
+The body goes to `./df-out/` in the working directory by default; pass `--out <path>` to put it
+elsewhere, or add `df-out/` to the project's ignore file.
+
 Exit codes, each reported distinctly on stderr:
 
 | Exit | Class | Meaning |
@@ -111,9 +114,9 @@ https://docs.datafeeds.rolling-insights.com/spec.json
 ### The three commands
 
 ```bash
-curl -s https://docs.datafeeds.rolling-insights.com/spec.json -o /tmp/spec.json
-jq '.paths | keys' /tmp/spec.json
-jq -f scripts/route.jq --arg path '/live/{date}/NBA' /tmp/spec.json
+curl -s https://docs.datafeeds.rolling-insights.com/spec.json -o "${TMPDIR:-/tmp}/spec.json"
+jq '.paths | keys' "${TMPDIR:-/tmp}/spec.json"
+jq -f scripts/route.jq --arg path '/live/{date}/NBA' "${TMPDIR:-/tmp}/spec.json"
 ```
 
 Note the date you downloaded it; the spec carries no per-deploy version.
@@ -121,15 +124,23 @@ Note the date you downloaded it; the spec carries no per-deploy version.
 `scripts/route.jq` ships with this skill (path relative to the skill directory; jq 1.6 or later,
 nothing else). It prints one object: `path`, `summary`, `description`, `parameters` (name, `in`,
 required, description, schema with enums) and `response`, the 200 JSON schema with every `$ref`
-resolved. Redirect it to a file (`> /tmp/route.json`) when the schema is big; the largest live
+resolved. Redirect it to a file (`> "${TMPDIR:-/tmp}/route.json"`) when the schema is big; the largest live
 box-score route is about 37 KB.
+
+`scripts/fields.jq` lists every field path of a resolved route's response with its type, one per
+line as `<path>  <type>` (`[]` for array items, `.*` for a keyed map, `|null` when nullable), which
+is how to locate a nested field before writing a parser:
+
+```bash
+jq -f scripts/route.jq --arg path '/live/{date}/MLB' "${TMPDIR:-/tmp}/spec.json" | jq -r -f scripts/fields.jq
+```
 
 ### Pick the route before resolving it
 
 Read a candidate's summary and description first; resolve only the one you will call:
 
 ```bash
-jq --arg p '/live/{date}/NBA' '.paths[$p].get | {summary, description}' /tmp/spec.json
+jq --arg p '/live/{date}/NBA' '.paths[$p].get | {summary, description}' "${TMPDIR:-/tmp}/spec.json"
 ```
 
 An unknown path fails with the closest matching paths on stderr. Paths are matched as written in

@@ -87,9 +87,9 @@ Never hardcode real tokens in scripts, examples, prompts, or committed files.
 ### 3. Find the route in the spec
 
 ```bash
-curl -s https://docs.datafeeds.rolling-insights.com/spec.json -o /tmp/spec.json
-jq '.paths | keys' /tmp/spec.json
-jq -f scripts/route.jq --arg path '/schedule/{date}/NBA' /tmp/spec.json
+curl -s https://docs.datafeeds.rolling-insights.com/spec.json -o "${TMPDIR:-/tmp}/spec.json"
+jq '.paths | keys' "${TMPDIR:-/tmp}/spec.json"
+jq -f scripts/route.jq --arg path '/schedule/{date}/NBA' "${TMPDIR:-/tmp}/spec.json"
 ```
 
 The third command prints the route's parameters and its response schema with every reference resolved.
@@ -114,6 +114,7 @@ The runner reads your token from `RSC_TOKEN` and appends it to the request itsel
 - `references/data-model.md`: what the spec cannot say, verified against the live API: identifiers and joins across routes, date and season semantics, and the empty-slate behaviour
 - `scripts/df.sh`: the request runner; takes a full request URL, pins the host, appends the token, classifies the outcome, and writes the body to a file with a one-line summary
 - `scripts/route.jq`: a jq filter that resolves one route of the spec (parameters and response schema, every `$ref` expanded)
+- `scripts/fields.jq`: a companion filter that lists every field path of a resolved route's response with its type, one per line
 - `tests/route-test.sh`: a synthetic-fixture check for the route filter
 
 ## The five rules
@@ -185,10 +186,16 @@ Never put `RSC_token=` in the URL: the runner refuses it. For live polling, send
 `scripts/route.jq` resolves one route of the spec with jq 1.6 or later and nothing else:
 
 ```bash
-jq -f scripts/route.jq --arg path '/live/{date}/NBA' /tmp/spec.json
+jq -f scripts/route.jq --arg path '/live/{date}/NBA' "${TMPDIR:-/tmp}/spec.json"
 ```
 
 It prints one object with the route's `path`, `summary`, `description`, `parameters`, and `response` (the 200 JSON schema with every `$ref` expanded). An unknown path exits 1 and names the closest spec paths.
+
+`scripts/fields.jq` turns that object into a listing of every field path in the response with its type, one per line (`data.MLB[].game_ID  string`), for locating a nested field:
+
+```bash
+jq -f scripts/route.jq --arg path '/live/{date}/MLB' "${TMPDIR:-/tmp}/spec.json" | jq -r -f scripts/fields.jq
+```
 
 ## Reference guide
 
