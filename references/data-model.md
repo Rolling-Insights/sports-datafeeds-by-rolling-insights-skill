@@ -2,7 +2,8 @@
 
 The spec gives every route's parameters and response schema; resolve a route before reading a
 field (Rules 3 and 4). This file holds only the facts that live across routes or in the values,
-which a schema cannot express. Every item was verified against the live API on 2026-09-19. Data
+which a schema cannot express. Every item was verified against the live API on 2026-09-19; the
+identifiers note on 2026-09-20. Data
 quality is not covered here: a value that looks wrong is a bug report, not a rule.
 
 ## The wrapper
@@ -57,6 +58,21 @@ quality is not covered here: a value that looks wrong is a bug report, not a rul
   `team_id` sits beside the positions. Verified on NBA.
 - The `player_id` query filter exists only on the darts routes. For every other sport, fetch the
   roster or stats and select the row client-side.
+
+## Identifiers and other providers
+
+- `team_id`, `player_id`, `game_ID`, `tournament_ID` and `event_ID` are DataFeeds' own. No route
+  returns another provider's id and no parameter accepts one (the spec's query and path parameters
+  are `date`, `season`, `league`, `game_id`, `event_id`, `player_id`); there is no crosswalk.
+- Migrating from another provider: build the crosswalk once, then store the DataFeeds ids and join
+  on them. Teams: team-info rows, matched on `team`, `abbrv` or `mascot`. Players: player-info rows,
+  matched on `player` plus `team_id`; the same `player` string can belong to more than one
+  `player_id`. Games: schedule rows for the league's game day, matched on `home_team_ID` /
+  `away_team_ID` once the teams are mapped.
+- Verified on MLB: team-info `team_id` 28 is `team` "San Diego Padres", `abbrv` "SD", `mascot`
+  "Padres"; player-info `player_id` 5787 is `player` "Paul Skenes" with `team_id` 26 (the
+  Pittsburgh Pirates); two player-info rows are `player` "Andrew Moore" with different
+  `player_id` and `team_id` values.
 
 ## Dates and times
 

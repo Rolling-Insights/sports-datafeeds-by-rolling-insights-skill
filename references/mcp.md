@@ -71,8 +71,6 @@ Take the REST path (`references/api.md`) when any of these is the question:
 - **A 304 body.** An upstream 304 arrives as a message, never as a body to inspect.
 - **The season-less stats form.** `season` is required on the stats tools; the REST routes that
   omit it are not reachable here.
-- **Upstream filters for team sports.** The REST `team_id` query parameter is not exposed; the
-  MCP's `team` filter is applied after the full fetch.
 - **A raw upstream error.** Error bodies are redacted and cut to 500 characters.
 - **The REST contract.** Tool names, argument names and the MCP's output say nothing about what a
   REST client receives; only the spec and a captured REST response do. Never check a parser

@@ -63,11 +63,12 @@ diagnosis, whether or not MCP tools are present.
    ```bash
    curl -sS "https://rest.datafeeds.rolling-insights.com/api/v1/<path>?RSC_token=$RSC_TOKEN"
    ```
-3. Run Rules 3, 4 and 5 before writing a parser: the route from the spec, the structure from the
+3. Build every `{date}` path value from the league's game day, never the GMT or machine date: `references/data-model.md`, Dates and times.
+4. Run Rules 3, 4 and 5 before writing a parser: the route from the spec, the structure from the
    resolved schema, the choice stated.
-4. Check the parser against a REST response captured to a file by the runner (Rule 4, step 3),
+5. Check the parser against a REST response captured to a file by the runner (Rule 4, step 3),
    never against MCP output.
-5. Hand over code that never logs a full request URL (the token is in the query string) and never
+6. Hand over code that never logs a full request URL (the token is in the query string) and never
    embeds an MCP call.
 
 Don't:
