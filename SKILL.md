@@ -137,11 +137,14 @@ Tone rules:
 
 ## Use the scripts
 
-Prefer the bundled scripts for deterministic requests:
-- `scripts/df-rest.sh`
-- `scripts/df-schedule.sh`
-- `scripts/df-live.sh`
-- `scripts/df-play-by-play.sh`
-- `scripts/df-field.sh`
+Prefer the bundled scripts for deterministic requests. `scripts/df.sh` is the primary runner and covers every documented endpoint shape:
 
-They read the token from `RSC_TOKEN`, print a redacted final URL to stderr, and emit raw JSON to stdout.
+- Date-based (`schedule`, `schedule-week`, `live`, `events`): `scripts/df.sh <endpoint> <YYYY-MM-DD> <SPORT> [key=value ...]`
+- Season-based (`schedule-season`, `team-stats`, `player-stats`): `scripts/df.sh <endpoint> <YYYY> <SPORT> [key=value ...]`
+- Date-less (`play-by-play`, `field`, `team-info`, `player-info`, `injuries`, `depth-charts`, and season-less `team-stats` / `player-stats`): `scripts/df.sh <endpoint> <SPORT> [key=value ...]`
+- Capability check: `scripts/df.sh --probe <same arguments>` runs the request but prints a one-line classification (HTTP code, JSON or non-JSON, top-level keys) instead of the body. Use it to confirm whether an endpoint/sport combination is supported or entitled before building on it.
+- `scripts/df.sh --help` prints the full usage and the exit-code table: `0` valid JSON, `2` usage or validation error, `3` missing token, `4` network failure, `5` timeout, `6` HTTP 304, `7` HTTP error, `8` non-JSON body, `9` malformed JSON. Report the class to the user; never treat a 304, an HTTP error, or a non-JSON body as data.
+
+The runner validates the endpoint, the sport code, and `key=value` parameters (`game_id`, `team_id`, `player_id`, `league`, `event_id`, `relegated`), reads the token from `RSC_TOKEN`, sends it URL-encoded rather than interpolated into a URL string, prints a redacted request line to stderr, and emits raw JSON to stdout. Never pass the token as a `key=value` argument, and never hand-write a `curl` command with `RSC_token=` in it when the runner can make the request.
+
+`scripts/df-rest.sh`, `scripts/df-schedule.sh`, `scripts/df-live.sh`, `scripts/df-play-by-play.sh`, and `scripts/df-field.sh` remain as thin compatibility wrappers over `df.sh` with their original positional arguments.
