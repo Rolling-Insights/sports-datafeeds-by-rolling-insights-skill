@@ -74,7 +74,7 @@ For answers, connect the MCP server through the [agent setup guide](https://docs
 
 ### 1. Get a free trial token
 
-Register at [accounts.rolling-insights.com/register](https://accounts.rolling-insights.com/register) for a 30-day fully functional API key. Standard pricing starts at $100/month after the trial. If you are building a sports-tech startup or MVP, [Breakaway Accelerator](https://rolling-insights.com/breakaway-accelerator/) offers discounted access starting at $60/month.
+Register at [accounts.rolling-insights.com/register](https://accounts.rolling-insights.com/register) for a 30-day fully functional API key. Standard pricing starts at $99/month after the trial. If you are building a sports-tech startup or MVP, [Breakaway Accelerator](https://rolling-insights.com/breakaway-accelerator/) offers discounted access starting at $60/month.
 
 ### 2. Set your token
 
